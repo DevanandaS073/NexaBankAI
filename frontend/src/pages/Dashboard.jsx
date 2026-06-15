@@ -6,7 +6,7 @@ import CategoryBadge from '../components/CategoryBadge'
 import ConfidenceBar from '../components/ConfidenceBar'
 import StatusBadge from '../components/StatusBadge'
 
-const API_URL = 'http://127.0.0.1:8000'
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
 const sampleData = [
     { name: 'Lost/Stolen Card', value: 18, color: '#f87171' }, // soft red
