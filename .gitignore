@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+dist/
+build/
+
+# Environment secrets
+.env
+
+# Python caching & compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini

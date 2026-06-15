@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+:root {
+  --font-sans: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
+  --text-main: #334155;
+  --text-muted: #64748b;
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-border: rgba(255, 255, 255, 0.45);
+  --glass-blur: blur(16px);
+  --glass-shadow: 0 8px 32px 0 rgba(148, 163, 184, 0.15);
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text-main);
+  background: linear-gradient(135deg, #D6E4F0 0%, #E8EEF5 100%);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Headings in spaced uppercase */
+h1, h2, h3, h4, h5, h6 {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* Glassmorphism Card styling */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: var(--glass-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glassmorphism Inputs styling */
+.glass-input {
+  background: rgba(255, 255, 255, 0.45) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  border-radius: 12px !important;
+  color: var(--text-main) !important;
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+  outline: none !important;
+  font-family: var(--font-sans) !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+
+.glass-input::placeholder {
+  color: #94a3b8 !important;
+  opacity: 0.8 !important;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border-color: rgba(99, 102, 241, 0.45) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+}
+
+/* Glassmorphism Primary Button styling */
+.glass-button {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 50px !important;
+  padding: 12px 28px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(148, 163, 184, 0.25) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  outline: none !important;
+}
+
+.glass-button:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15), 0 0 0 1px rgba(99, 102, 241, 0.2) !important;
+  background: #ffffff !important;
+}
+
+.glass-button:active {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+.glass-button:disabled {
+  background: rgba(255, 255, 255, 0.3) !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Secondary Button style */
+.glass-button-secondary {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 50px !important;
+  padding: 10px 24px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  outline: none !important;
+}
+
+.glass-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.glass-button-secondary:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+/* Floating Animation for background blobs */
+@keyframes float-slow {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.05); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+@keyframes float-medium {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(-40px, 30px) scale(1.05); }
+}
+
+.animate-float-1 {
+  animation: float-slow 20s ease-in-out infinite;
+}
+
+.animate-float-2 {
+  animation: float-medium 16s ease-in-out infinite;
+}
+
+.animate-float-3 {
+  animation: float-slow 24s ease-in-out infinite alternate;
+}
