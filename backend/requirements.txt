@@ -8,4 +8,6 @@ psycopg2-binary
 python-dotenv
 python-jose[cryptography]
 passlib[bcrypt]
+bcrypt
+email-validator
 python-multipart
