@@ -25,7 +25,7 @@ vectorizer = joblib.load(vectorizer_path)
 
 # 77 categories mapping to 5 major departments
 CATEGORY_TO_DEPARTMENT_MAP = {
-    # Billing
+    # --- Billing ---
     "card_payment_fee_charged": "billing",
     "cash_withdrawal_charge": "billing",
     "exchange_charge": "billing",
@@ -36,15 +36,39 @@ CATEGORY_TO_DEPARTMENT_MAP = {
     "transfer_fee_charged": "billing",
     "top_up_by_bank_transfer_charge": "billing",
     "top_up_by_card_charge": "billing",
-    
-    # Sales
+    "automatic_top_up": "billing",
+    "cancel_transfer": "billing",
+    "card_payment_wrong_exchange_rate": "billing",
+    "declined_card_payment": "billing",
+    "declined_cash_withdrawal": "billing",
+    "declined_transfer": "billing",
+    "failed_transfer": "billing",
+    "pending_card_payment": "billing",
+    "pending_cash_withdrawal": "billing",
+    "pending_top_up": "billing",
+    "pending_transfer": "billing",
+    "receiving_money": "billing",
+    "reverted_card_payment?": "billing",
+    "top_up_by_cash_or_cheque": "billing",
+    "top_up_failed": "billing",
+    "top_up_limits": "billing",
+    "top_up_reverted": "billing",
+    "topping_up_by_card": "billing",
+    "transfer_into_account": "billing",
+    "transfer_not_received_by_recipient": "billing",
+    "transfer_timing": "billing",
+    "wrong_amount_of_cash_received": "billing",
+    "wrong_exchange_rate_for_cash_withdrawal": "billing",
+
+    # --- Sales ---
     "country_support": "sales",
     "fiat_currency_support": "sales",
     "supported_cards_and_currencies": "sales",
     "visa_or_mastercard": "sales",
     "exchange_rate": "sales",
-    
-    # Account Support
+    "exchange_via_app": "sales",
+
+    # --- Account Support ---
     "age_limit": "account_support",
     "edit_personal_details": "account_support",
     "passcode_forgotten": "account_support",
@@ -56,14 +80,37 @@ CATEGORY_TO_DEPARTMENT_MAP = {
     "why_verify_identity": "account_support",
     "balance_not_updated_after_bank_transfer": "account_support",
     "balance_not_updated_after_cheque_or_cash_deposit": "account_support",
-    
-    # Security
+    "beneficiary_not_allowed": "account_support",
+
+    # --- Security ---
     "compromised_card": "security",
     "lost_or_stolen_card": "security",
     "lost_or_stolen_phone": "security",
     "card_payment_not_recognised": "security",
     "cash_withdrawal_not_recognised": "security",
     "direct_debit_payment_not_recognised": "security",
+    "pin_blocked": "security",
+
+    # --- Cards (ATM'S AND CARDS) ---
+    "activate_my_card": "cards",
+    "apple_pay_or_google_pay": "cards",
+    "atm_support": "cards",
+    "card_about_to_expire": "cards",
+    "card_acceptance": "cards",
+    "card_arrival": "cards",
+    "card_delivery_estimate": "cards",
+    "card_linking": "cards",
+    "card_not_working": "cards",
+    "card_swallowed": "cards",
+    "change_pin": "cards",
+    "contactless_not_working": "cards",
+    "disposable_card_limits": "cards",
+    "get_disposable_virtual_card": "cards",
+    "get_physical_card": "cards",
+    "getting_spare_card": "cards",
+    "getting_virtual_card": "cards",
+    "order_physical_card": "cards",
+    "virtual_card_not_working": "cards",
 }
 
 def get_department_for_category(category: str) -> str:
