@@ -90,10 +90,10 @@ def test_flow():
     assert matching_ticket is not None, "Ticket not found in Billing queue!"
     print("Ticket found in Billing department queue.")
     
-    # 8. Agent claims and resolves ticket
-    print("Agent claiming ticket...")
-    res = requests.post(f"{BASE_URL}/tickets/{ticket_id}/claim", headers=agent_headers)
-    assert res.status_code == 200, f"Claim failed: {res.text}"
+    # 8. Agent starts and resolves ticket
+    print("Agent starting ticket...")
+    res = requests.post(f"{BASE_URL}/tickets/{ticket_id}/start", headers=agent_headers)
+    assert res.status_code == 200, f"Start failed: {res.text}"
     
     resolution = "We have refunded the second charge. The credit will reflect in 2-3 business days."
     print("Agent responding/resolving ticket...")

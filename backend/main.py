@@ -6,7 +6,7 @@ import models
 # Create tables
 Base.metadata.create_all(bind=engine)
 
-from routes import auth, predict, tickets
+from routes import auth, tickets
 
 app = FastAPI(title="NexaBank Support API")
 
@@ -24,7 +24,6 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
-app.include_router(predict.router)
 app.include_router(tickets.router)
 
 @app.get("/")

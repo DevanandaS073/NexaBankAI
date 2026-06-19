@@ -7,11 +7,17 @@ function StatusBadge({ status }) {
                     color: "#b45309",
                     bg: "rgba(245, 158, 11, 0.08)"
                 }
-            case "claimed":
+            case "in_progress":
                 return {
-                    text: "Claimed",
+                    text: "In Progress",
                     color: "#1d4ed8",
                     bg: "rgba(59, 130, 246, 0.08)"
+                }
+            case "reassigned":
+                return {
+                    text: "Reassigned",
+                    color: "#7c3aed",
+                    bg: "rgba(124, 58, 237, 0.08)"
                 }
             case "resolved":
                 return {

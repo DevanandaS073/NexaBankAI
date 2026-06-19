@@ -32,9 +32,16 @@ class Ticket(Base):
     status              = Column(String, default="pending")  # pending, claimed, resolved
     claimed_by_id       = Column(Integer, ForeignKey("users.id"), nullable=True)
     response            = Column(String, nullable=True)
+    reassigned_from     = Column(String, nullable=True)
+    is_read_by_customer = Column(Boolean, default=False)
+    routing_reason      = Column(String, nullable=True)
     created_at          = Column(DateTime(timezone=True), server_default=func.now())
     updated_at          = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationships
     customer   = relationship("User", back_populates="tickets_submitted", foreign_keys=[customer_id])
     claimed_by = relationship("User", back_populates="tickets_claimed", foreign_keys=[claimed_by_id])
+
+    @property
+    def account_number(self):
+        return self.customer.account_number if self.customer else None

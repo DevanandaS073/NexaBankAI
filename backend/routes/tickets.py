@@ -169,13 +169,18 @@ def create_ticket(
     text_lower = data.text.lower()
     if any(kw in text_lower for kw in keywords):
         assigned_dept = "general_support"
-        predicted_category = "keyword_filter"
+        predicted_category = "out_of_scope"
         confidence = 1.0
+        routing_reason = "out_of_scope_keyword"
     else:
         vec = vectorizer.transform([data.text])
         predicted_category = model.predict(vec)[0]
         confidence = float(np.max(model.predict_proba(vec)))
         assigned_dept = get_department_for_category(predicted_category, data.text, confidence)
+        if confidence < 0.30:
+            routing_reason = "low_confidence"
+        else:
+            routing_reason = "ml_classified"
     
     ticket = Ticket(
         customer_id=current_user.id,
@@ -183,7 +188,9 @@ def create_ticket(
         predicted_category=predicted_category,
         confidence=round(confidence * 100, 2),
         assigned_department=assigned_dept,
-        status="pending"
+        status="pending",
+        routing_reason=routing_reason,
+        is_read_by_customer=False
     )
     
     db.add(ticket)
@@ -203,7 +210,20 @@ def get_my_tickets(
         )
     
     tickets = db.query(Ticket).filter(Ticket.customer_id == current_user.id).order_by(Ticket.created_at.desc()).all()
-    return tickets
+    
+    response_tickets = []
+    updated = False
+    for t in tickets:
+        t_out = TicketOut.model_validate(t)
+        response_tickets.append(t_out)
+        if t.status == "resolved" and not t.is_read_by_customer:
+            t.is_read_by_customer = True
+            updated = True
+            
+    if updated:
+        db.commit()
+        
+    return response_tickets
 
 @router.get("/department", response_model=list[TicketOut])
 def get_department_tickets(
@@ -225,8 +245,8 @@ def get_department_tickets(
     tickets = query.order_by(Ticket.created_at.desc()).all()
     return tickets
 
-@router.post("/{ticket_id}/claim", response_model=TicketOut)
-def claim_ticket(
+@router.post("/{ticket_id}/start", response_model=TicketOut)
+def start_ticket(
     ticket_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -234,26 +254,17 @@ def claim_ticket(
     if current_user.role != "staff":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only support agents can claim tickets"
+            detail="Only staff can update ticket status"
         )
-    
     ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket not found")
-        
     if ticket.assigned_department != current_user.department:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Cannot claim a ticket assigned to a different department"
+            detail="Ticket not in your department"
         )
-        
-    if ticket.status != "pending":
-        raise HTTPException(
-            status_code=400,
-            detail=f"Cannot claim this ticket. Current status is {ticket.status}."
-        )
-        
-    ticket.status = "claimed"
+    ticket.status = "in_progress"
     ticket.claimed_by_id = current_user.id
     db.commit()
     db.refresh(ticket)
@@ -276,14 +287,15 @@ def respond_ticket(
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket not found")
         
-    if ticket.claimed_by_id != current_user.id:
+    if ticket.assigned_department != current_user.department:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You must claim this ticket before responding"
+            detail="This ticket does not belong to your department"
         )
         
     ticket.response = data.response
     ticket.status = "resolved"
+    ticket.claimed_by_id = current_user.id
     db.commit()
     db.refresh(ticket)
     return ticket
@@ -295,23 +307,23 @@ def reassign_ticket(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    if current_user.role != "staff":
+    if current_user.role not in ["staff", "admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only support agents can reassign tickets"
+            detail="Only support agents or admins can reassign tickets"
         )
     
     ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket not found")
         
-    # Reassigning allows transfer of ticket to another department
     valid_departments = ["billing", "sales", "account_support", "security", "cards", "general_support"]
     if data.department not in valid_departments:
         raise HTTPException(status_code=400, detail="Invalid department name")
         
+    ticket.reassigned_from = ticket.assigned_department
     ticket.assigned_department = data.department
-    ticket.status = "pending" # Reset to pending for the new department to pick it up
+    ticket.status = "reassigned"
     ticket.claimed_by_id = None # Release claim
     db.commit()
     db.refresh(ticket)

@@ -37,8 +37,19 @@ class TicketRequest(BaseModel):
 class TicketCreate(BaseModel):
     text: str
 
+from pydantic import field_validator
+
 class TicketRespond(BaseModel):
     response: str
+
+    @field_validator('response')
+    @classmethod
+    def response_must_not_be_empty(cls, v):
+        if not v or not v.strip():
+            raise ValueError('Response cannot be empty or whitespace')
+        if len(v.strip()) < 10:
+            raise ValueError('Response must be at least 10 characters')
+        return v.strip()
 
 class TicketReassign(BaseModel):
     department: str
@@ -53,6 +64,10 @@ class TicketOut(BaseModel):
     status: str
     claimed_by_id: Optional[int]
     response: Optional[str]
+    reassigned_from: Optional[str] = None
+    is_read_by_customer: bool
+    routing_reason: Optional[str] = None
+    account_number: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     customer: Optional[UserOut]

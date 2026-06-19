@@ -135,20 +135,20 @@ function Dashboard() {
         }
     }
 
-    const handleClaimTicket = async (ticketId) => {
+    const handleStartTicket = async (ticketId) => {
         setActionLoading(prev => ({ ...prev, [ticketId]: true }))
         try {
             const token = localStorage.getItem('token')
             const res = await axios.post(
-                `${API_URL}/tickets/${ticketId}/claim`,
+                `${API_URL}/tickets/${ticketId}/start`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             )
             setTickets(prev => prev.map(t => t.id === ticketId ? res.data : t))
-            setEmployeeTab('claimed')
+            setEmployeeTab('in_progress')
         } catch (err) {
             console.error(err)
-            alert('Failed to claim ticket.')
+            alert('Failed to start ticket.')
         } finally {
             setActionLoading(prev => ({ ...prev, [ticketId]: false }))
         }
@@ -251,8 +251,8 @@ function Dashboard() {
 
     // Filter tickets for employee view tabs
     const filteredEmployeeTickets = tickets.filter(t => {
-        if (employeeTab === 'pending') return t.status === 'pending'
-        if (employeeTab === 'claimed') return t.status === 'claimed' && t.claimed_by_id === user.id
+        if (employeeTab === 'pending') return t.status === 'pending' || t.status === 'reassigned'
+        if (employeeTab === 'in_progress') return t.status === 'in_progress'
         if (employeeTab === 'resolved') return t.status === 'resolved'
         return true
     })
@@ -424,7 +424,25 @@ function Dashboard() {
                                                             {t.text}
                                                         </p>
                                                     </div>
-                                                    <StatusBadge status={t.status} />
+                                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                                        {t.status === 'resolved' && !t.is_read_by_customer && (
+                                                            <span style={{
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                gap: '4px',
+                                                                color: '#ef4444',
+                                                                fontSize: '11px',
+                                                                fontWeight: '700',
+                                                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                                                padding: '4px 8px',
+                                                                borderRadius: '20px',
+                                                                border: '1px solid rgba(239, 68, 68, 0.3)'
+                                                            }}>
+                                                                🔴 New Response
+                                                            </span>
+                                                        )}
+                                                        <StatusBadge status={t.status} />
+                                                    </div>
                                                 </div>
                                                 
                                                 <div className="glass-card" style={{
@@ -474,16 +492,16 @@ function Dashboard() {
                         <div>
                             {/* Stats Cards */}
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
-                                <div className="glass-card" style={{ padding: '16px', textAlign: 'center' }}>
+                                	<div className="glass-card" style={{ padding: '16px', textAlign: 'center' }}>
                                     <p style={{ color: '#d97706', fontSize: '11px', fontWeight: '700', margin: '0 0 4px', textTransform: 'uppercase' }}>Pending</p>
                                     <p style={{ color: 'var(--text-main)', fontSize: '24px', fontWeight: '800', margin: 0 }}>
-                                        {tickets.filter(t => t.status === 'pending').length}
+                                        {tickets.filter(t => t.status === 'pending' || t.status === 'reassigned').length}
                                     </p>
                                 </div>
                                 <div className="glass-card" style={{ padding: '16px', textAlign: 'center' }}>
-                                    <p style={{ color: '#2563eb', fontSize: '11px', fontWeight: '700', margin: '0 0 4px', textTransform: 'uppercase' }}>My Claimed</p>
+                                    <p style={{ color: '#2563eb', fontSize: '11px', fontWeight: '700', margin: '0 0 4px', textTransform: 'uppercase' }}>In Progress</p>
                                     <p style={{ color: 'var(--text-main)', fontSize: '24px', fontWeight: '800', margin: 0 }}>
-                                        {tickets.filter(t => t.status === 'claimed' && t.claimed_by_id === user.id).length}
+                                        {tickets.filter(t => t.status === 'in_progress').length}
                                     </p>
                                 </div>
                                 <div className="glass-card" style={{ padding: '16px', textAlign: 'center' }}>
@@ -497,13 +515,15 @@ function Dashboard() {
                             {/* Tab selector */}
                             <div style={{ display: 'flex', borderBottom: '1px solid rgba(255, 255, 255, 0.45)', marginBottom: '20px', gap: '24px' }}>
                                 {[
-                                    { id: 'pending', label: 'Unassigned Pending Queue' },
-                                    { id: 'claimed', label: 'My Claimed Tickets' },
+                                    { id: 'pending', label: 'Pending Queue' },
+                                    { id: 'in_progress', label: 'In Progress' },
                                     { id: 'resolved', label: 'Resolved Archive' }
                                 ].map(tab => (
                                     <button
                                         key={tab.id}
-                                        onClick={() => setEmployeeTab(tab.id)}
+                                        onClick={() => {
+                                            setEmployeeTab(tab.id)
+                                        }}
                                         style={{
                                             backgroundColor: 'transparent',
                                             border: 'none',
@@ -544,7 +564,7 @@ function Dashboard() {
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
                                                 <div>
                                                     <span style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
-                                                        SUBMITTED BY: {t.customer?.full_name || 'Customer'} {t.customer?.account_number ? `(Acct: ${t.customer.account_number})` : ''} • TICKET ID #{t.id}
+                                                        SUBMITTED BY: {t.customer?.full_name || 'Customer'} {(t.account_number || t.customer?.account_number) ? `(Acct: ${t.account_number || t.customer.account_number})` : ''} • TICKET ID #{t.id}
                                                     </span>
                                                     <p style={{ color: 'var(--text-main)', fontSize: '15px', fontWeight: '500', margin: 0, whiteSpace: 'pre-wrap' }}>
                                                         {t.text}
@@ -570,23 +590,39 @@ function Dashboard() {
                                                         {t.assigned_department.replace('_', ' ')}
                                                     </span>
                                                 </div>
+                                                {t.routing_reason && (
+                                                    <div>
+                                                        <span style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', marginBottom: '2px' }}>Routing Reason</span>
+                                                        <span style={{ color: '#eab308', fontWeight: '700', fontSize: '13px' }}>
+                                                            {t.routing_reason.replace(/_/g, ' ')}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                {t.reassigned_from && (
+                                                    <div>
+                                                        <span style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', marginBottom: '2px' }}>Reassigned From</span>
+                                                        <span style={{ color: '#a855f7', fontWeight: '700', fontSize: '13px', textTransform: 'capitalize' }}>
+                                                            {t.reassigned_from.replace('_', ' ')}
+                                                        </span>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             {/* Action panels */}
-                                            {t.status === 'pending' && (
+                                            {(t.status === 'pending' || t.status === 'reassigned') && (
                                                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                                     <button
-                                                        onClick={() => handleClaimTicket(t.id)}
+                                                        onClick={() => handleStartTicket(t.id)}
                                                         disabled={actionLoading[t.id]}
                                                         className="glass-button"
                                                         style={{ padding: '8px 20px !important' }}
                                                     >
-                                                        {actionLoading[t.id] ? 'Claiming...' : 'Claim Ticket'}
+                                                        {actionLoading[t.id] ? 'Starting...' : 'Start Ticket'}
                                                     </button>
                                                 </div>
                                             )}
 
-                                            {t.status === 'claimed' && (
+                                            {t.status === 'in_progress' && (
                                                 <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.45)', paddingTop: '20px', marginTop: '16px' }}>
                                                     <div style={{ marginBottom: '16px' }}>
                                                         <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>
