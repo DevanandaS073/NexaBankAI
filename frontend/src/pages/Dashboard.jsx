@@ -624,6 +624,7 @@ function Dashboard() {
                                                                 <option value="account_support">🔐 Account Support</option>
                                                                 <option value="security">🚨 Security & Fraud</option>
                                                                 <option value="cards">💳 Cards & ATM Support</option>
+                                                                <option value="general_support">💼 General Support</option>
                                                             </select>
                                                             <button
                                                                 onClick={() => handleReassignTicket(t.id)}
@@ -847,6 +848,7 @@ function Dashboard() {
                                 <option value="account_support">🔐 Account Support</option>
                                 <option value="security">🚨 Security & Fraud</option>
                                 <option value="cards">💳 Cards & ATM Support</option>
+                                <option value="general_support">💼 General Support</option>
                             </select>
                         </div>
 

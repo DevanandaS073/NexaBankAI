@@ -113,7 +113,18 @@ CATEGORY_TO_DEPARTMENT_MAP = {
     "virtual_card_not_working": "cards",
 }
 
-def get_department_for_category(category: str) -> str:
+def get_department_for_category(category: str, text: str = "", confidence: float = 1.0) -> str:
+    # 1. Keyword check
+    keywords = ["emi", "loan", "installment", "instalment", "credit limit", "credit card", "mortgage", "interest rate", "borrow", "lending"]
+    text_lower = text.lower()
+    if any(kw in text_lower for kw in keywords):
+        return "general_support"
+
+    # 2. Confidence check
+    if confidence < 0.30:
+        return "general_support"
+
+    # 3. Map check
     return CATEGORY_TO_DEPARTMENT_MAP.get(category, "cards")
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
@@ -154,12 +165,17 @@ def create_ticket(
         )
     
     # Classify the text
-    vec = vectorizer.transform([data.text])
-    predicted_category = model.predict(vec)[0]
-    confidence = float(np.max(model.predict_proba(vec)))
-    
-    # Map to department
-    assigned_dept = get_department_for_category(predicted_category)
+    keywords = ["emi", "loan", "installment", "instalment", "credit limit", "credit card", "mortgage", "interest rate", "borrow", "lending"]
+    text_lower = data.text.lower()
+    if any(kw in text_lower for kw in keywords):
+        assigned_dept = "general_support"
+        predicted_category = "keyword_filter"
+        confidence = 1.0
+    else:
+        vec = vectorizer.transform([data.text])
+        predicted_category = model.predict(vec)[0]
+        confidence = float(np.max(model.predict_proba(vec)))
+        assigned_dept = get_department_for_category(predicted_category, data.text, confidence)
     
     ticket = Ticket(
         customer_id=current_user.id,
@@ -290,7 +306,7 @@ def reassign_ticket(
         raise HTTPException(status_code=404, detail="Ticket not found")
         
     # Reassigning allows transfer of ticket to another department
-    valid_departments = ["billing", "sales", "account_support", "security", "cards"]
+    valid_departments = ["billing", "sales", "account_support", "security", "cards", "general_support"]
     if data.department not in valid_departments:
         raise HTTPException(status_code=400, detail="Invalid department name")
         

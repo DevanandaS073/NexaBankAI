@@ -68,6 +68,14 @@ def init():
                 "password": "stephan123",
                 "role": "staff",
                 "department": "cards"
+            },
+            {
+                #general support
+                "full_name": "General Support Specialist",
+                "email": "sam_generalagent@nexabank.com",
+                "password": "general123",
+                "role": "staff",
+                "department": "general_support"
             }
 
         ]

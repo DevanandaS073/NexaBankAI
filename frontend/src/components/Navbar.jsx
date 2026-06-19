@@ -55,6 +55,7 @@ function Navbar() {
                 case 'account_support': return '🔐'
                 case 'security': return '🚨'
                 case 'cards': return '💳'
+                case 'general_support': return '💼'
                 default: return '💼'
             }
         }
