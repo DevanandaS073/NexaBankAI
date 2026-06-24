@@ -1,14 +1,13 @@
 import random
 from datetime import datetime, timedelta
 from sqlalchemy import create_engine, text
-from passlib.context import CryptContext
+from auth import hash_password
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
 engine = create_engine(os.getenv("DATABASE_URL"))
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # ── Realistic banking ticket data ──
 TICKETS_DATA = [
@@ -187,7 +186,7 @@ def seed():
                     {
                         "full_name": full_name,
                         "email": email,
-                        "password": pwd_context.hash("Staff@123"),
+                        "password": hash_password("Staff@123"),
                         "account_number": None,
                         "department": department,
                     }
@@ -216,7 +215,7 @@ def seed():
                     {
                         "full_name": full_name,
                         "email": email,
-                        "password": pwd_context.hash("Customer@123"),
+                        "password": hash_password("Customer@123"),
                         "account_number": account_number,
                     }
                 )
