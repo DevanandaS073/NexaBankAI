@@ -223,10 +223,14 @@ def seed():
                 print(f"  ✅ Customer created: {full_name}")
 
         # ── Insert tickets ──
-        print("\n🎫 Inserting tickets...")
+        print("\n🧹 Clearing old tickets...")
+        conn.execute(text("TRUNCATE TABLE tickets RESTART IDENTITY;"))
+
+        print("🎫 Inserting 150 tickets...")
         ticket_count = 0
 
-        for i, (ticket_text, category, department) in enumerate(TICKETS_DATA):
+        for i in range(150):
+            ticket_text, category, department = random.choice(TICKETS_DATA)
             # Random customer
             customer_id = random.choice(customer_ids)
 
