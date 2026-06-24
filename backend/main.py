@@ -26,7 +26,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(tickets.router)
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def root():
     return {"status": "NexaBank API running"}
 
