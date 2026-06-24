@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, ResponsiveContainer, AreaChart, Area, CartesianGrid, Legend } from 'recharts'
 import CategoryBadge from '../components/CategoryBadge'
 import ConfidenceBar from '../components/ConfidenceBar'
 import StatusBadge from '../components/StatusBadge'
@@ -39,6 +39,11 @@ function Dashboard() {
     
     // Sub-view selectors
     const [activeSubView, setActiveSubView] = useState('tickets') // admin: tickets, provision, analytics; others: tickets
+    
+    // Analytics states
+    const [analyticsData, setAnalyticsData] = useState(null)
+    const [loadingAnalytics, setLoadingAnalytics] = useState(false)
+    const [analyticsError, setAnalyticsError] = useState(null)
     
     // Data list state
     const [tickets, setTickets] = useState([])
@@ -105,11 +110,34 @@ function Dashboard() {
         }
     }
 
+    const fetchAnalytics = async () => {
+        setLoadingAnalytics(true)
+        setAnalyticsError(null)
+        try {
+            const token = localStorage.getItem('token')
+            const res = await axios.get(`${API_URL}/tickets/analytics`, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            setAnalyticsData(res.data)
+        } catch (err) {
+            console.error(err)
+            setAnalyticsError('Failed to fetch ticket analytics.')
+        } finally {
+            setLoadingAnalytics(false)
+        }
+    }
+
     useEffect(() => {
         if (user) {
             fetchTickets()
         }
     }, [user])
+
+    useEffect(() => {
+        if (user && (user.role === 'admin' || user.role === 'staff') && activeSubView === 'analytics') {
+            fetchAnalytics()
+        }
+    }, [user, activeSubView])
 
     const handleCreateTicket = async (e) => {
         e.preventDefault()
@@ -279,8 +307,8 @@ function Dashboard() {
                     </p>
                 </div>
                 
-                {/* Admin Sub-View Selector Toggle */}
-                {user.role === 'admin' && (
+                {/* Staff / Admin Sub-View Selector Toggle */}
+                {(user.role === 'admin' || user.role === 'staff') && (
                     <div className="glass-card" style={{ display: 'flex', border: '1px solid rgba(255, 255, 255, 0.45)', borderRadius: '50px', padding: '4px' }}>
                         <button
                             onClick={() => setActiveSubView('tickets')}
@@ -298,26 +326,28 @@ function Dashboard() {
                                 transition: 'all 0.2s',
                             }}
                         >
-                            🎫 Global Tickets
+                            🎫 {user.role === 'admin' ? 'Global Tickets' : 'Ticket Workspace'}
                         </button>
-                        <button
-                            onClick={() => setActiveSubView('provision')}
-                            style={{
-                                backgroundColor: activeSubView === 'provision' ? '#ffffff' : 'transparent',
-                                color: activeSubView === 'provision' ? 'var(--text-main)' : 'var(--text-muted)',
-                                border: 'none',
-                                padding: '8px 20px',
-                                borderRadius: '50px',
-                                fontSize: '12px',
-                                fontWeight: '700',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.05em',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s',
-                            }}
-                        >
-                            👤 Create Support Agent
-                        </button>
+                        {user.role === 'admin' && (
+                            <button
+                                onClick={() => setActiveSubView('provision')}
+                                style={{
+                                    backgroundColor: activeSubView === 'provision' ? '#ffffff' : 'transparent',
+                                    color: activeSubView === 'provision' ? 'var(--text-main)' : 'var(--text-muted)',
+                                    border: 'none',
+                                    padding: '8px 20px',
+                                    borderRadius: '50px',
+                                    fontSize: '12px',
+                                    fontWeight: '700',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.05em',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                }}
+                            >
+                                👤 Create Support Agent
+                            </button>
+                        )}
                         <button
                             onClick={() => setActiveSubView('analytics')}
                             style={{
@@ -334,7 +364,7 @@ function Dashboard() {
                                 transition: 'all 0.2s',
                             }}
                         >
-                            📊 System Analytics
+                            📊 {user.role === 'admin' ? 'System Analytics' : 'Department Analytics'}
                         </button>
                     </div>
                 )}
@@ -900,98 +930,202 @@ function Dashboard() {
                 </div>
             )}
 
-            {/* Sub-View: Super Agent Analytics */}
-            {activeSubView === 'analytics' && user.role === 'admin' && (
+            {/* Sub-View: Super Agent & Staff Analytics */}
+            {activeSubView === 'analytics' && (user.role === 'admin' || user.role === 'staff') && (
                 <div>
-                    {/* Stat cards */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
-                        {statCards.map(card => (
-                            <div key={card.label} className="glass-card" style={{
-                                padding: '20px',
-                            }}>
-                                <p style={{ color: 'var(--text-muted)', fontSize: '11px', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '700' }}>
-                                    {card.label}
-                                </p>
-                                <p style={{ color: card.color, fontSize: '28px', fontWeight: '800', margin: 0 }}>
-                                    {card.value}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Charts row */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px', marginBottom: '32px' }}>
-                        {/* Pie chart */}
+                    {loadingAnalytics ? (
+                        <div style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '100px' }}>
+                            <h3>Loading live database analytics...</h3>
+                        </div>
+                    ) : analyticsError ? (
                         <div className="glass-card" style={{
+                            backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                            border: '1px solid rgba(239, 68, 68, 0.35)',
+                            borderRadius: '12px',
                             padding: '24px',
+                            color: '#dc2626',
+                            textAlign: 'center'
                         }}>
-                            <h3 style={{ color: 'var(--text-main)', fontSize: '15px', fontWeight: '700', margin: '0 0 20px' }}>
-                                Category Distribution
-                            </h3>
-                            <ResponsiveContainer width="100%" height={250}>
-                                <PieChart>
-                                    <Pie data={sampleData} cx="50%" cy="50%" outerRadius={90} dataKey="value" label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`} labelLine={false}>
-                                        {sampleData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                                    </Pie>
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.85)', border: '1px solid rgba(255, 255, 255, 0.65)', borderRadius: '12px', color: '#334155', backdropFilter: 'blur(8px)' }}
-                                    />
-                                </PieChart>
-                            </ResponsiveContainer>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px', justifyContent: 'center' }}>
-                                {sampleData.map(d => (
-                                    <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: d.color }} />
-                                        <span style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: '500' }}>{d.name}</span>
+                            <span style={{ fontSize: '24px' }}>⚠️</span>
+                            <p style={{ margin: '8px 0 0', fontWeight: '600' }}>{analyticsError}</p>
+                        </div>
+                    ) : analyticsData ? (
+                        <div>
+                            {/* Live Database Stats Cards */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+                                {[
+                                    {
+                                        label: 'Total Tickets',
+                                        value: analyticsData.resolved_vs_pending.reduce((acc, curr) => acc + curr.value, 0),
+                                        color: 'var(--text-main)'
+                                    },
+                                    {
+                                        label: 'Resolved Tickets',
+                                        value: analyticsData.resolved_vs_pending.find(d => d.name === 'Resolved')?.value || 0,
+                                        color: '#22c55e'
+                                    },
+                                    {
+                                        label: 'Pending & Active',
+                                        value: analyticsData.resolved_vs_pending.find(d => d.name === 'Pending')?.value || 0,
+                                        color: '#ef4444'
+                                    },
+                                    {
+                                        label: 'Peak Hour',
+                                        value: analyticsData.peak_hours.length > 0 
+                                            ? [...analyticsData.peak_hours].sort((a, b) => b.count - a.count)[0]?.hour || 'N/A'
+                                            : 'N/A',
+                                        color: '#a855f7'
+                                    }
+                                ].map(card => (
+                                    <div key={card.label} className="glass-card" style={{
+                                        padding: '20px',
+                                    }}>
+                                        <p style={{ color: 'var(--text-muted)', fontSize: '11px', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '700' }}>
+                                            {card.label}
+                                        </p>
+                                        <p style={{ color: card.color, fontSize: '28px', fontWeight: '800', margin: 0 }}>
+                                            {card.value}
+                                        </p>
                                     </div>
                                 ))}
                             </div>
-                        </div>
 
-                        {/* Bar chart */}
-                        <div className="glass-card" style={{
-                            padding: '24px',
-                        }}>
-                            <h3 style={{ color: 'var(--text-main)', fontSize: '15px', fontWeight: '700', margin: '0 0 20px' }}>
-                                Model Comparison
-                            </h3>
-                            <ResponsiveContainer width="100%" height={250}>
-                                <BarChart data={modelData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                                    <XAxis dataKey="name" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
-                                    <YAxis domain={[75, 92]} tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.85)', border: '1px solid rgba(255, 255, 255, 0.65)', borderRadius: '12px', color: '#334155', backdropFilter: 'blur(8px)' }}
-                                    />
-                                    <Bar dataKey="accuracy" fill="#818cf8" name="Accuracy %" radius={[4, 4, 0, 0]} />
-                                    <Bar dataKey="f1" fill="#4ade80" name="F1 Score %" radius={[4, 4, 0, 0]} />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-
-                    {/* Dataset info */}
-                    <div className="glass-card" style={{
-                        padding: '24px',
-                    }}>
-                        <h3 style={{ color: 'var(--text-main)', fontSize: '15px', fontWeight: '700', margin: '0 0 16px' }}>
-                            Dataset Information
-                        </h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                            {[
-                                { label: 'Dataset', value: 'BANKING77' },
-                                { label: 'Source', value: 'HuggingFace' },
-                                { label: 'Train Samples', value: '10,003' },
-                                { label: 'Test Samples', value: '3,080' },
-                                { label: 'Categories', value: '77 intents' },
-                                { label: 'Best Model', value: 'Logistic Regression' },
-                            ].map(item => (
-                                <div key={item.label}>
-                                    <p style={{ color: 'var(--text-muted)', fontSize: '11px', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>{item.label}</p>
-                                    <p style={{ color: 'var(--text-main)', fontSize: '14px', fontWeight: '700', margin: 0 }}>{item.value}</p>
+                            {/* Live Ticket Charts Row */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+                                
+                                {/* 1. Tickets Per Department (Bar Chart) */}
+                                <div className="glass-card" style={{ padding: '24px' }}>
+                                    <h3 style={{ color: 'var(--text-main)', fontSize: '15px', fontWeight: '700', margin: '0 0 20px', letterSpacing: '0.02em' }}>
+                                        🎫 Tickets Per Department
+                                    </h3>
+                                    <ResponsiveContainer width="100%" height={260}>
+                                        <BarChart data={analyticsData.tickets_per_department.map(d => ({ ...d, department: formatDeptName(d.department) }))}>
+                                            <XAxis dataKey="department" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} />
+                                            <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10 }} allowDecimals={false} />
+                                            <Tooltip
+                                                contentStyle={{ backgroundColor: 'var(--glass-bg)', border: '1px solid var(--glass-border)', borderRadius: '12px', color: 'var(--text-main)', backdropFilter: 'blur(8px)' }}
+                                            />
+                                            <Bar dataKey="count" fill="#6366f1" name="Tickets" radius={[4, 4, 0, 0]} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
                                 </div>
-                            ))}
+
+                                {/* 2. Resolved vs Pending (Donut/Pie Chart) */}
+                                <div className="glass-card" style={{ padding: '24px' }}>
+                                    <h3 style={{ color: 'var(--text-main)', fontSize: '15px', fontWeight: '700', margin: '0 0 20px', letterSpacing: '0.02em' }}>
+                                        📊 Resolved vs Pending
+                                    </h3>
+                                    <ResponsiveContainer width="100%" height={200}>
+                                        <PieChart>
+                                            <Pie 
+                                                data={analyticsData.resolved_vs_pending} 
+                                                cx="50%" 
+                                                cy="50%" 
+                                                innerRadius={60}
+                                                outerRadius={80} 
+                                                paddingAngle={5}
+                                                dataKey="value"
+                                            >
+                                                <Cell fill="#22c55e" /> {/* Resolved - Green */}
+                                                <Cell fill="#ef4444" /> {/* Pending - Red */}
+                                            </Pie>
+                                            <Tooltip
+                                                contentStyle={{ backgroundColor: 'var(--glass-bg)', border: '1px solid var(--glass-border)', borderRadius: '12px', color: 'var(--text-main)', backdropFilter: 'blur(8px)' }}
+                                            />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                    <div style={{ display: 'flex', gap: '20px', marginTop: '16px', justifyContent: 'center' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <div style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: '#22c55e' }} />
+                                            <span style={{ color: 'var(--text-main)', fontSize: '12px', fontWeight: '600' }}>
+                                                Resolved ({analyticsData.resolved_vs_pending.find(d => d.name === 'Resolved')?.value || 0})
+                                            </span>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <div style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: '#ef4444' }} />
+                                            <span style={{ color: 'var(--text-main)', fontSize: '12px', fontWeight: '600' }}>
+                                                Pending ({analyticsData.resolved_vs_pending.find(d => d.name === 'Pending')?.value || 0})
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* 3. Peak Submission Hours (Area Chart) */}
+                                <div className="glass-card" style={{ padding: '24px' }}>
+                                    <h3 style={{ color: 'var(--text-main)', fontSize: '15px', fontWeight: '700', margin: '0 0 20px', letterSpacing: '0.02em' }}>
+                                        ⏰ Peak Submission Hours
+                                    </h3>
+                                    <ResponsiveContainer width="100%" height={260}>
+                                        <AreaChart data={analyticsData.peak_hours} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                                            <defs>
+                                                <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#ec4899" stopOpacity={0.4}/>
+                                                    <stop offset="95%" stopColor="#ec4899" stopOpacity={0.0}/>
+                                                </linearGradient>
+                                            </defs>
+                                            <XAxis dataKey="hour" tick={{ fill: 'var(--text-muted)', fontSize: 9 }} />
+                                            <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 9 }} allowDecimals={false} />
+                                            <Tooltip
+                                                contentStyle={{ backgroundColor: 'var(--glass-bg)', border: '1px solid var(--glass-border)', borderRadius: '12px', color: 'var(--text-main)', backdropFilter: 'blur(8px)' }}
+                                            />
+                                            <Area type="monotone" dataKey="count" stroke="#ec4899" strokeWidth={2.5} fillOpacity={1} fill="url(#colorCount)" name="Tickets Submitted" />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
+
+                            </div>
+
+                            {/* original static ML metrics - only shown to admin */}
+                            {user.role === 'admin' && (
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+                                    {/* Pie chart */}
+                                    <div className="glass-card" style={{ padding: '24px' }}>
+                                        <h3 style={{ color: 'var(--text-main)', fontSize: '15px', fontWeight: '700', margin: '0 0 20px' }}>
+                                            Model Training Category Distribution
+                                        </h3>
+                                        <ResponsiveContainer width="100%" height={250}>
+                                            <PieChart>
+                                                <Pie data={sampleData} cx="50%" cy="50%" outerRadius={90} dataKey="value" label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`} labelLine={false}>
+                                                    {sampleData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                                                </Pie>
+                                                <Tooltip
+                                                    contentStyle={{ backgroundColor: 'var(--glass-bg)', border: '1px solid var(--glass-border)', borderRadius: '12px', color: 'var(--text-main)', backdropFilter: 'blur(8px)' }}
+                                                />
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px', justifyContent: 'center' }}>
+                                            {sampleData.map(d => (
+                                                <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: d.color }} />
+                                                    <span style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: '500' }}>{d.name}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Bar chart */}
+                                    <div className="glass-card" style={{ padding: '24px' }}>
+                                        <h3 style={{ color: 'var(--text-main)', fontSize: '15px', fontWeight: '700', margin: '0 0 20px' }}>
+                                            Classifier Model Comparison
+                                        </h3>
+                                        <ResponsiveContainer width="100%" height={250}>
+                                            <BarChart data={modelData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                                                <XAxis dataKey="name" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
+                                                <YAxis domain={[75, 92]} tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
+                                                <Tooltip
+                                                    contentStyle={{ backgroundColor: 'var(--glass-bg)', border: '1px solid var(--glass-border)', borderRadius: '12px', color: 'var(--text-main)', backdropFilter: 'blur(8px)' }}
+                                                />
+                                                <Bar dataKey="accuracy" fill="#818cf8" name="Accuracy %" radius={[4, 4, 0, 0]} />
+                                                <Bar dataKey="f1" fill="#4ade80" name="F1 Score %" radius={[4, 4, 0, 0]} />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    </div>
+                    ) : (
+                        <div style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '40px' }}>No analytics data available.</div>
+                    )}
                 </div>
             )}
         </div>

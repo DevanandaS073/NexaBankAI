@@ -245,6 +245,60 @@ def get_department_tickets(
     tickets = query.order_by(Ticket.created_at.desc()).all()
     return tickets
 
+@router.get("/analytics")
+def get_ticket_analytics(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role not in ["staff", "admin"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: Only employees and admins can view analytics"
+        )
+    
+    tickets_data = db.query(Ticket.assigned_department, Ticket.status, Ticket.created_at).all()
+    
+    # 1. Tickets per department
+    dept_counts = {}
+    known_depts = ["billing", "sales", "account_support", "security", "cards", "general_support"]
+    for d in known_depts:
+        dept_counts[d] = 0
+        
+    for t in tickets_data:
+        dept = t.assigned_department
+        if dept:
+            dept_counts[dept] = dept_counts.get(dept, 0) + 1
+            
+    tickets_per_department = [{"department": dept, "count": count} for dept, count in dept_counts.items()]
+    
+    # 2. Resolved vs Pending
+    status_counts = {"pending": 0, "resolved": 0}
+    for t in tickets_data:
+        if t.status == "resolved":
+            status_counts["resolved"] += 1
+        else:
+            status_counts["pending"] += 1
+            
+    resolved_vs_pending = [
+        {"name": "Resolved", "value": status_counts["resolved"]},
+        {"name": "Pending", "value": status_counts["pending"]}
+    ]
+    
+    # 3. Peak hours of ticket submission
+    hour_counts = {h: 0 for h in range(24)}
+    for t in tickets_data:
+        if t.created_at:
+            hour = t.created_at.hour
+            hour_counts[hour] = hour_counts.get(hour, 0) + 1
+            
+    peak_hours = [{"hour": f"{h:02d}:00", "count": count} for h, count in hour_counts.items()]
+    
+    return {
+        "tickets_per_department": tickets_per_department,
+        "resolved_vs_pending": resolved_vs_pending,
+        "peak_hours": peak_hours
+    }
+
 @router.post("/{ticket_id}/start", response_model=TicketOut)
 def start_ticket(
     ticket_id: int,
