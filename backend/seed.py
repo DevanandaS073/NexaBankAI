@@ -160,73 +160,68 @@ AGENT_RESPONSES = {
 STATUSES = ["pending", "in_progress", "resolved"]
 STATUS_WEIGHTS = [0.3, 0.3, 0.4]
 
+DEPT_MAP = {
+    "Cards & ATMs": "cards",
+    "Billing": "billing",
+    "Account Support": "account_support",
+    "Security & Fraud": "security",
+    "Loans & Credit": "general_support",
+    "Sales": "sales",
+    "General Support": "general_support"
+}
 
 def seed():
     with engine.connect() as conn:
         print("🌱 Starting seed...")
 
+        # ── Clean up existing seeded tables ──
+        print("🧹 Clearing old tickets and users...")
+        conn.execute(text("TRUNCATE TABLE tickets RESTART IDENTITY;"))
+        conn.execute(text("DELETE FROM users WHERE role IN ('staff', 'customer');"))
+
         # ── Insert staff ──
         staff_ids = {}
         for full_name, email, department, dept_key in STAFF_DATA:
-            existing = conn.execute(
-                text("SELECT id FROM users WHERE email = :email"),
-                {"email": email}
-            ).fetchone()
-
-            if existing:
-                staff_ids[department] = existing[0]
-                print(f"  Staff exists: {full_name}")
-            else:
-                result = conn.execute(
-                    text("""
-                        INSERT INTO users (full_name, email, hashed_password, account_number, role, department, is_active, created_at)
-                        VALUES (:full_name, :email, :password, :account_number, 'staff', :department, true, NOW())
-                        RETURNING id
-                    """),
-                    {
-                        "full_name": full_name,
-                        "email": email,
-                        "password": hash_password("Staff@123"),
-                        "account_number": None,
-                        "department": department,
-                    }
-                )
-                staff_ids[department] = result.fetchone()[0]
-                print(f"  ✅ Staff created: {full_name}")
+            target_dept = DEPT_MAP.get(department, "general_support")
+            
+            result = conn.execute(
+                text("""
+                    INSERT INTO users (full_name, email, hashed_password, account_number, role, department, is_active, created_at)
+                    VALUES (:full_name, :email, :password, :account_number, 'staff', :department, true, NOW())
+                    RETURNING id
+                """),
+                {
+                    "full_name": full_name,
+                    "email": email,
+                    "password": hash_password("Staff@123"),
+                    "account_number": None,
+                    "department": target_dept,
+                }
+            )
+            staff_ids[target_dept] = result.fetchone()[0]
+            print(f"  ✅ Staff created: {full_name} ({target_dept})")
 
         # ── Insert customers ──
         customer_ids = []
         for full_name, email, account_number in CUSTOMER_DATA:
-            existing = conn.execute(
-                text("SELECT id FROM users WHERE email = :email"),
-                {"email": email}
-            ).fetchone()
-
-            if existing:
-                customer_ids.append(existing[0])
-                print(f"  Customer exists: {full_name}")
-            else:
-                result = conn.execute(
-                    text("""
-                        INSERT INTO users (full_name, email, hashed_password, account_number, role, department, is_active, created_at)
-                        VALUES (:full_name, :email, :password, :account_number, 'customer', NULL, true, NOW())
-                        RETURNING id
-                    """),
-                    {
-                        "full_name": full_name,
-                        "email": email,
-                        "password": hash_password("Customer@123"),
-                        "account_number": account_number,
-                    }
-                )
-                customer_ids.append(result.fetchone()[0])
-                print(f"  ✅ Customer created: {full_name}")
+            result = conn.execute(
+                text("""
+                    INSERT INTO users (full_name, email, hashed_password, account_number, role, department, is_active, created_at)
+                    VALUES (:full_name, :email, :password, :account_number, 'customer', NULL, true, NOW())
+                    RETURNING id
+                """),
+                {
+                    "full_name": full_name,
+                    "email": email,
+                    "password": hash_password("Customer@123"),
+                    "account_number": account_number,
+                }
+            )
+            customer_ids.append(result.fetchone()[0])
+            print(f"  ✅ Customer created: {full_name}")
 
         # ── Insert tickets ──
-        print("\n🧹 Clearing old tickets...")
-        conn.execute(text("TRUNCATE TABLE tickets RESTART IDENTITY;"))
-
-        print("🎫 Inserting 150 tickets...")
+        print("\n🎫 Inserting 150 tickets...")
         ticket_count = 0
 
         for i in range(150):
@@ -250,8 +245,10 @@ def seed():
             claimed_by_id = None
             response = None
 
+            target_dept = DEPT_MAP.get(department, "general_support")
+
             if status in ["in_progress", "resolved"]:
-                claimed_by_id = staff_ids.get(department)
+                claimed_by_id = staff_ids.get(target_dept)
                 if status == "resolved":
                     responses = AGENT_RESPONSES.get(category, ["Your issue has been resolved successfully."])
                     response = random.choice(responses)
@@ -259,19 +256,22 @@ def seed():
             conn.execute(
                 text("""
                     INSERT INTO tickets 
-                    (customer_id, text, predicted_category, confidence, assigned_department, status, claimed_by_id, response, created_at, updated_at)
+                    (customer_id, text, predicted_category, confidence, assigned_department, status, claimed_by_id, response, reassigned_from, is_read_by_customer, routing_reason, created_at, updated_at)
                     VALUES 
-                    (:customer_id, :text, :predicted_category, :confidence, :assigned_department, :status, :claimed_by_id, :response, :created_at, :updated_at)
+                    (:customer_id, :text, :predicted_category, :confidence, :assigned_department, :status, :claimed_by_id, :response, :reassigned_from, :is_read_by_customer, :routing_reason, :created_at, :updated_at)
                 """),
                 {
                     "customer_id": customer_id,
                     "text": ticket_text,
                     "predicted_category": category,
                     "confidence": confidence,
-                    "assigned_department": department,
+                    "assigned_department": target_dept,
                     "status": status,
                     "claimed_by_id": claimed_by_id,
                     "response": response,
+                    "reassigned_from": None,
+                    "is_read_by_customer": False,
+                    "routing_reason": "ml_classified",
                     "created_at": created_at,
                     "updated_at": updated_at,
                 }

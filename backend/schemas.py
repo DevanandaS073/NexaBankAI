@@ -65,7 +65,7 @@ class TicketOut(BaseModel):
     claimed_by_id: Optional[int]
     response: Optional[str]
     reassigned_from: Optional[str] = None
-    is_read_by_customer: bool
+    is_read_by_customer: bool = False
     routing_reason: Optional[str] = None
     account_number: Optional[str] = None
     created_at: datetime
