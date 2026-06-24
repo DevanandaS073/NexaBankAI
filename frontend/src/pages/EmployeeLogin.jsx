@@ -65,10 +65,10 @@ function EmployeeLogin() {
             {/* Header */}
             <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                 <span style={{ fontSize: '36px' }}>🔐</span>
-                <h2 style={{ color: '#1e293b', fontSize: '22px', fontWeight: '800', margin: '12px 0 6px', letterSpacing: '0.08em' }}>
+                <h2 style={{ color: 'var(--text-main)', fontSize: '22px', fontWeight: '800', margin: '12px 0 6px', letterSpacing: '0.08em' }}>
                     Employee Portal
                 </h2>
-                <p style={{ color: '#64748b', fontSize: '13px', margin: 0, fontWeight: '500' }}>
+                <p style={{ color: 'var(--text-subtle)', fontSize: '13px', margin: 0, fontWeight: '500' }}>
                     Sign in with your secure employee ID & password.
                 </p>
             </div>
@@ -93,7 +93,7 @@ function EmployeeLogin() {
                 )}
 
                 <div style={{ marginBottom: '20px' }}>
-                    <label style={{ display: 'block', color: '#475569', fontSize: '11px', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         Employee Email
                     </label>
                     <input
@@ -110,7 +110,7 @@ function EmployeeLogin() {
                 </div>
 
                 <div style={{ marginBottom: '24px' }}>
-                    <label style={{ display: 'block', color: '#475569', fontSize: '11px', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         Password
                     </label>
                     <input

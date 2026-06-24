@@ -4,18 +4,50 @@
 
 :root {
   --font-sans: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
-  --text-main: #334155;
-  --text-muted: #64748b;
+  --text-main: #1e293b;
+  --text-muted: #475569;
+  --text-subtle: #64748b;
   --glass-bg: rgba(255, 255, 255, 0.25);
   --glass-border: rgba(255, 255, 255, 0.45);
   --glass-blur: blur(16px);
   --glass-shadow: 0 8px 32px 0 rgba(148, 163, 184, 0.15);
+  --body-bg: linear-gradient(135deg, #D6E4F0 0%, #E8EEF5 100%);
+  --input-bg: rgba(255, 255, 255, 0.45);
+  --input-border: rgba(255, 255, 255, 0.6);
+  --input-focus-bg: rgba(255, 255, 255, 0.75);
+  --button-bg: #ffffff;
+  --button-text: #1e293b;
+  --button-border: rgba(255, 255, 255, 0.9);
+  --button-bg-hover: #ffffff;
+  --blob-1: rgba(255, 255, 255, 0.65);
+  --blob-2: rgba(255, 255, 255, 0.5);
+  --blob-3: rgba(224, 233, 242, 0.75);
+}
+
+.dark {
+  --text-main: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-subtle: #94a3b8;
+  --glass-bg: rgba(15, 23, 42, 0.35);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --body-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --input-bg: rgba(15, 23, 42, 0.6);
+  --input-border: rgba(255, 255, 255, 0.1);
+  --input-focus-bg: rgba(15, 23, 42, 0.8);
+  --button-bg: #1e293b;
+  --button-text: #cbd5e1;
+  --button-border: rgba(255, 255, 255, 0.1);
+  --button-bg-hover: #334155;
+  --blob-1: rgba(99, 102, 241, 0.12);
+  --blob-2: rgba(129, 140, 248, 0.08);
+  --blob-3: rgba(79, 70, 229, 0.12);
 }
 
 body {
   font-family: var(--font-sans);
   color: var(--text-main);
-  background: linear-gradient(135deg, #D6E4F0 0%, #E8EEF5 100%);
+  background: var(--body-bg);
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -28,6 +60,15 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: 0.1em;
   font-weight: 700;
   color: var(--text-main);
+}
+
+/* Specific class styling overrides for dark mode */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  color: var(--text-main) !important;
+}
+
+.dark label {
+  color: var(--text-muted) !important;
 }
 
 /* Glassmorphism Card styling */
@@ -43,8 +84,8 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Glassmorphism Inputs styling */
 .glass-input {
-  background: rgba(255, 255, 255, 0.45) !important;
-  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  background: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
   border-radius: 12px !important;
   color: var(--text-main) !important;
   padding: 12px 16px !important;
@@ -56,21 +97,21 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .glass-input::placeholder {
-  color: #94a3b8 !important;
+  color: var(--text-subtle) !important;
   opacity: 0.8 !important;
 }
 
 .glass-input:focus {
-  background: rgba(255, 255, 255, 0.75) !important;
+  background: var(--input-focus-bg) !important;
   border-color: rgba(99, 102, 241, 0.45) !important;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
 }
 
 /* Glassmorphism Primary Button styling */
 .glass-button {
-  background: #ffffff !important;
-  color: #1e293b !important;
-  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  background: var(--button-bg) !important;
+  color: var(--button-text) !important;
+  border: 1px solid var(--button-border) !important;
   border-radius: 50px !important;
   padding: 12px 28px !important;
   font-size: 12px !important;
@@ -90,7 +131,7 @@ h1, h2, h3, h4, h5, h6 {
 .glass-button:hover {
   transform: translateY(-2px) scale(1.02) !important;
   box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15), 0 0 0 1px rgba(99, 102, 241, 0.2) !important;
-  background: #ffffff !important;
+  background: var(--button-bg-hover) !important;
 }
 
 .glass-button:active {
@@ -98,8 +139,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .glass-button:disabled {
-  background: rgba(255, 255, 255, 0.3) !important;
-  color: #94a3b8 !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: var(--text-subtle) !important;
   cursor: not-allowed !important;
   transform: none !important;
   box-shadow: none !important;
@@ -107,7 +148,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Secondary Button style */
 .glass-button-secondary {
-  background: rgba(255, 255, 255, 0.15) !important;
+  background: var(--glass-bg) !important;
   color: var(--text-main) !important;
   border: 1px solid var(--glass-border) !important;
   border-radius: 50px !important;
@@ -126,8 +167,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .glass-button-secondary:hover {
-  background: rgba(255, 255, 255, 0.3) !important;
-  border-color: rgba(255, 255, 255, 0.8) !important;
+  background: var(--input-bg) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
 }
 
 .glass-button-secondary:disabled {

@@ -84,7 +84,7 @@ function Home() {
                     Welcome to NexaBank AI Assistant
                 </h1>
                 <p style={{
-                    color: '#334155',
+                    color: 'var(--text-main)',
                     fontSize: '16px',
                     maxWidth: '650px',
                     margin: '0 auto',
@@ -121,11 +121,11 @@ function Home() {
                         padding: '20px',
                         textAlign: 'center',
                         transition: 'all 0.3s ease',
-                        border: '1px solid rgba(255, 255, 255, 0.5)'
+                        border: '1px solid var(--glass-border)'
                     }}>
                         <span style={{ fontSize: '28px', display: 'block', marginBottom: '10px' }}>{dept.emoji}</span>
-                        <h3 style={{ color: '#1e293b', fontSize: '13px', fontWeight: '700', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{dept.name}</h3>
-                        <p style={{ color: '#64748b', fontSize: '12px', margin: 0, lineHeight: '1.4' }}>{dept.desc}</p>
+                        <h3 style={{ color: 'var(--text-main)', fontSize: '13px', fontWeight: '700', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{dept.name}</h3>
+                        <p style={{ color: 'var(--text-subtle)', fontSize: '12px', margin: 0, lineHeight: '1.4' }}>{dept.desc}</p>
                     </div>
                 ))}
             </div>
@@ -137,15 +137,15 @@ function Home() {
                     boxShadow: '0 12px 40px rgba(148, 163, 184, 0.12)',
                     marginTop: '40px'
                 }}>
-                    <h2 style={{ color: '#1e293b', fontSize: '18px', fontWeight: '800', margin: '0 0 8px', letterSpacing: '0.05em' }}>
+                    <h2 style={{ color: 'var(--text-main)', fontSize: '18px', fontWeight: '800', margin: '0 0 8px', letterSpacing: '0.05em' }}>
                         Model Testing Sandbox
                     </h2>
-                    <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 24px' }}>
+                    <p style={{ color: 'var(--text-subtle)', fontSize: '13px', margin: '0 0 24px' }}>
                         Try the prediction engine. Write a message below to classify it.
                     </p>
 
                     <div>
-                        <label style={{ color: '#475569', fontSize: '12px', fontWeight: '600', display: 'block', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        <label style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: '600', display: 'block', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             Support request text <span style={{ color: '#94a3b8' }}>(Ctrl+Enter to classify)</span>
                         </label>
                         <textarea
@@ -163,7 +163,7 @@ function Home() {
                         />
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                            <span style={{ color: '#64748b', fontSize: '12px' }}>
+                            <span style={{ color: 'var(--text-subtle)', fontSize: '12px' }}>
                                 {ticket.length} characters
                             </span>
                             <div style={{ display: 'flex', gap: '10px' }}>
@@ -211,9 +211,9 @@ function Home() {
                             <div className="glass-card" style={{
                                 padding: '24px',
                                 marginBottom: '24px',
-                                border: '1px solid rgba(255, 255, 255, 0.5)'
+                                border: '1px solid var(--glass-border)'
                             }}>
-                                <p style={{ color: '#64748b', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', margin: '0 0 16px', letterSpacing: '0.05em' }}>
+                                <p style={{ color: 'var(--text-subtle)', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', margin: '0 0 16px', letterSpacing: '0.05em' }}>
                                     Predicted Category
                                 </p>
                                 <div style={{ marginBottom: '20px' }}>
@@ -226,11 +226,11 @@ function Home() {
                         {/* History */}
                         {history.length > 0 && (
                             <div style={{
-                                borderTop: '1px solid rgba(255, 255, 255, 0.45)',
+                                borderTop: '1px solid var(--glass-border)',
                                 paddingTop: '24px',
                                 marginTop: '24px'
                             }}>
-                                <h3 style={{ color: '#1e293b', fontSize: '13px', fontWeight: '700', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                <h3 style={{ color: 'var(--text-main)', fontSize: '13px', fontWeight: '700', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                     Recent Predictions
                                 </h3>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -242,10 +242,10 @@ function Home() {
                                             justifyContent: 'space-between',
                                             alignItems: 'center',
                                             gap: '16px',
-                                            border: '1px solid rgba(255, 255, 255, 0.55)'
+                                            border: '1px solid var(--glass-border)'
                                         }}>
                                             <span style={{
-                                                color: '#334155',
+                                                color: 'var(--text-main)',
                                                 fontSize: '13px',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
@@ -268,7 +268,7 @@ function Home() {
             <div style={{
                 textAlign: 'center',
                 marginTop: '48px',
-                borderTop: '1px solid rgba(255, 255, 255, 0.4)',
+                borderTop: '1px solid var(--glass-border)',
                 paddingTop: '32px'
             }}>
                 <button
@@ -293,19 +293,19 @@ function Home() {
                         gap: '16px',
                         textAlign: 'left',
                         animation: 'fadeIn 0.3s ease',
-                        border: '1px solid rgba(255, 255, 255, 0.55)'
+                        border: '1px solid var(--glass-border)'
                     }}>
-                        <h4 style={{ color: '#1e293b', fontSize: '15px', fontWeight: '700', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        <h4 style={{ color: 'var(--text-main)', fontSize: '15px', fontWeight: '700', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             NexaBank Customer Help Desk
                         </h4>
-                        <p style={{ color: '#64748b', fontSize: '13px', margin: 0, lineHeight: '1.4' }}>
+                        <p style={{ color: 'var(--text-subtle)', fontSize: '13px', margin: 0, lineHeight: '1.4' }}>
                             If you require direct support, please contact our support team.
                         </p>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '4px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <span style={{ fontSize: '18px' }}>✉️</span>
                                 <div>
-                                    <span style={{ display: 'block', color: '#64748b', fontSize: '9px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email Support</span>
+                                    <span style={{ display: 'block', color: 'var(--text-subtle)', fontSize: '9px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email Support</span>
                                     <a href="mailto:nexabank@gmail.com" style={{ color: '#4f46e5', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>
                                         nexabank@gmail.com
                                     </a>
@@ -314,7 +314,7 @@ function Home() {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <span style={{ fontSize: '18px' }}>📞</span>
                                 <div>
-                                    <span style={{ display: 'block', color: '#64748b', fontSize: '9px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Customer Care Number</span>
+                                    <span style={{ display: 'block', color: 'var(--text-subtle)', fontSize: '9px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Customer Care Number</span>
                                     <a href="tel:5674239832" style={{ color: '#4f46e5', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>
                                         5674239832
                                     </a>

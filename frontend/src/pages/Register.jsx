@@ -57,10 +57,10 @@ function Register() {
             {/* Header */}
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                 <span style={{ fontSize: '36px' }}>📝</span>
-                <h2 style={{ color: '#1e293b', fontSize: '22px', fontWeight: '800', margin: '12px 0 6px', letterSpacing: '0.08em' }}>
+                <h2 style={{ color: 'var(--text-main)', fontSize: '22px', fontWeight: '800', margin: '12px 0 6px', letterSpacing: '0.08em' }}>
                     Create Account
                 </h2>
-                <p style={{ color: '#64748b', fontSize: '13px', margin: 0, fontWeight: '500' }}>
+                <p style={{ color: 'var(--text-subtle)', fontSize: '13px', margin: 0, fontWeight: '500' }}>
                     Join NexaBank Support routing platform.
                 </p>
             </div>
@@ -86,7 +86,7 @@ function Register() {
 
                 {/* Common Fields */}
                 <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', color: '#475569', fontSize: '11px', fontWeight: '700', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', fontWeight: '700', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         Full Name
                     </label>
                     <input
@@ -103,7 +103,7 @@ function Register() {
                 </div>
 
                 <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', color: '#475569', fontSize: '11px', fontWeight: '700', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', fontWeight: '700', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         Email Address
                     </label>
                     <input
@@ -120,7 +120,7 @@ function Register() {
                 </div>
 
                 <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', color: '#475569', fontSize: '11px', fontWeight: '700', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', fontWeight: '700', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         Password
                     </label>
                     <input
@@ -138,7 +138,7 @@ function Register() {
 
                 {/* Account Number */}
                 <div style={{ marginBottom: '24px' }}>
-                    <label style={{ display: 'block', color: '#475569', fontSize: '11px', fontWeight: '700', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', fontWeight: '700', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         Account Number <span style={{ color: '#94a3b8' }}>(Optional)</span>
                     </label>
                     <input
@@ -165,7 +165,7 @@ function Register() {
                     {loading ? 'Registering...' : 'Register'}
                 </button>
 
-                <p style={{ color: '#475569', fontSize: '13px', margin: 0, textAlign: 'center', fontWeight: '500' }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: '13px', margin: 0, textAlign: 'center', fontWeight: '500' }}>
                     Already have an account?{' '}
                     <Link to="/login" style={{ color: '#4f46e5', textDecoration: 'none', fontWeight: '700', borderBottom: '1.5px solid rgba(79, 70, 229, 0.3)' }}>
                         Login

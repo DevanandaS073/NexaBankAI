@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import ThemeToggle from './ThemeToggle'
 
 function Navbar() {
     const location = useLocation()
@@ -33,14 +34,14 @@ function Navbar() {
     }
 
     const linkStyle = (path) => ({
-        color: location.pathname === path ? '#4f46e5' : '#475569',
+        color: location.pathname === path ? '#4f46e5' : 'var(--text-muted)',
         textDecoration: 'none',
         fontWeight: location.pathname === path ? '700' : '500',
         fontSize: '11px',
         padding: '8px 16px',
         borderRadius: '50px',
-        backgroundColor: location.pathname === path ? 'rgba(255, 255, 255, 0.55)' : 'transparent',
-        border: location.pathname === path ? '1px solid rgba(255, 255, 255, 0.65)' : '1px solid transparent',
+        backgroundColor: location.pathname === path ? 'var(--input-bg)' : 'transparent',
+        border: location.pathname === path ? '1px solid var(--glass-border)' : '1px solid transparent',
         transition: 'all 0.2s',
         textTransform: 'uppercase',
         letterSpacing: '0.08em'
@@ -83,13 +84,14 @@ function Navbar() {
             top: 0,
             zIndex: 10,
         }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <ThemeToggle />
                 <span style={{ fontSize: '22px' }}>🏦</span>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ color: '#1e293b', fontWeight: '800', fontSize: '15px', letterSpacing: '0.5px', lineHeight: '1.2' }}>
+                    <span style={{ color: 'var(--text-main)', fontWeight: '800', fontSize: '15px', letterSpacing: '0.5px', lineHeight: '1.2' }}>
                         NexaBank
                     </span>
-                    <span style={{ color: '#64748b', fontSize: '10px', fontWeight: '600', letterSpacing: '0.02em' }}>
+                    <span style={{ color: 'var(--text-subtle)', fontSize: '10px', fontWeight: '600', letterSpacing: '0.02em' }}>
                         Securing Trust, Guarding Loyalty
                     </span>
                 </div>
@@ -111,16 +113,16 @@ function Navbar() {
                             gap: '8px',
                             padding: '6px 12px',
                             borderRadius: '12px',
-                            border: '1px solid rgba(255, 255, 255, 0.65)'
+                            border: '1px solid var(--glass-border)'
                         }}>
                             <span style={{ fontSize: '14px' }}>
                                 {getRoleEmoji(user)}
                             </span>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                                <span style={{ color: '#1e293b', fontSize: '12px', fontWeight: '600' }}>
+                                <span style={{ color: 'var(--text-main)', fontSize: '12px', fontWeight: '600' }}>
                                     {user.full_name}
                                 </span>
-                                <span style={{ color: '#64748b', fontSize: '10px', textTransform: 'capitalize', fontWeight: '500' }}>
+                                <span style={{ color: 'var(--text-subtle)', fontSize: '10px', textTransform: 'capitalize', fontWeight: '500' }}>
                                     {getRoleLabel(user)}
                                 </span>
                             </div>
